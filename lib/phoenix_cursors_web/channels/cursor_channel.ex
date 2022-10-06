@@ -2,6 +2,12 @@ defmodule PhoenixCursorsWeb.CursorChannel do
   use PhoenixCursorsWeb, :channel
 
   @impl true
+  def handle_in("move", %{"x" => x, "y" => y}, socket) do
+    broadcast(socket, "move", %{"x" => x, "y" => y})
+    {:noreply, socket}
+  end
+
+  @impl true
   def join("cursor:lobby", payload, socket) do
     if authorized?(payload) do
       {:ok, socket}
