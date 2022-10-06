@@ -11,7 +11,8 @@ defmodule PhoenixCursorsWeb.CursorChannel do
           %{
             online_at: inspect(System.system_time(:second)),
             x: x,
-            y: y
+            y: y,
+            color: PhoenixCursors.Colors.getHSL(socket.assigns.current_user)
           }
         )
       end)
@@ -29,7 +30,8 @@ defmodule PhoenixCursorsWeb.CursorChannel do
   def handle_info(:after_join, socket) do
     {:ok, _} =
       Presence.track(socket, socket.assigns.current_user, %{
-        online_at: inspect(System.system_time(:second))
+        online_at: inspect(System.system_time(:second)),
+        color: PhoenixCursors.Colors.getHSL(socket.assigns.current_user)
       })
 
     push(socket, "presence_state", Presence.list(socket))
