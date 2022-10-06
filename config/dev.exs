@@ -15,6 +15,7 @@ config :phoenix_cursors, PhoenixCursorsWeb.Endpoint,
   debug_errors: true,
   secret_key_base: "XF5PsOZLtXz8MBv/XZbr0urqseTM4mg8jKDmLMUl8IOWDno5z5hDBX47OGpFlhwX",
   watchers: [
+    tailwind: {Tailwind, :install_and_run, [:default, ~w(--watch)]},
     # Start the esbuild watcher by calling Esbuild.install_and_run(:default, args)
     esbuild: {Esbuild, :install_and_run, [:default, ~w(--sourcemap=inline --watch)]}
   ]
