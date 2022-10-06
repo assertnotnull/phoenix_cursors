@@ -1,20 +1,39 @@
 defmodule PhoenixCursorsWeb.CursorChannel do
+  alias PhoenixCursorsWeb.Presence
   use PhoenixCursorsWeb, :channel
 
   @impl true
   def handle_in("move", %{"x" => x, "y" => y}, socket) do
-    name = socket.assigns.current_user
-    broadcast(socket, "move", %{"x" => x, "y" => y, "name" => name})
+    {:ok, _} =
+      Presence.update(socket, socket.assigns.current_user, fn previousState ->
+        Map.merge(
+          previousState,
+          %{
+            online_at: inspect(System.system_time(:second)),
+            x: x,
+            y: y
+          }
+        )
+      end)
+
     {:noreply, socket}
   end
 
   @impl true
-  def join("cursor:lobby", payload, socket) do
-    if authorized?(payload) do
-      {:ok, socket}
-    else
-      {:error, %{reason: "unauthorized"}}
-    end
+  def join("cursor:lobby", _payload, socket) do
+    send(self(), :after_join)
+    {:ok, socket}
+  end
+
+  @impl true
+  def handle_info(:after_join, socket) do
+    {:ok, _} =
+      Presence.track(socket, socket.assigns.current_user, %{
+        online_at: inspect(System.system_time(:second))
+      })
+
+    push(socket, "presence_state", Presence.list(socket))
+    {:noreply, socket}
   end
 
   # Channels can be used in a request/response fashion

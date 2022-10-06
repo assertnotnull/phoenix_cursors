@@ -2,7 +2,7 @@
 // you uncomment its entry in "assets/js/app.js".
 
 // Bring in Phoenix channels client library:
-import {Socket} from "phoenix"
+import {Socket,Presence} from "phoenix"
 
 // And connect to the path in "lib/phoenix_cursors_web/endpoint.ex". We pass the
 // token for authentication. Read below how it should be used.
@@ -66,16 +66,7 @@ channel
       const y = e.pageY / window.innerHeight;
       channel.push('move', { x, y });
       
-      channel.on('move', ({ x, y, name }) => {
-        const ul = document.createElement('ul');
-        const cursorLi = cursorTemplate({
-          x: x * window.innerWidth,
-          y: y * window.innerHeight,
-          name
-        });
-        ul.appendChild(cursorLi);
-        document.getElementById('cursor-list').innerHTML = ul.innerHTML;
-      });
+     
     });
   })
   .receive('error', (resp) => {
@@ -113,5 +104,23 @@ function cursorTemplate({ x, y, name }) {
     return li;
   }
   
+
+const presence = new Presence(channel);
+
+presence.onSync(() => {
+  const ul = document.createElement('ul');
+
+  presence.list((name, { metas: [firstDevice] }) => {
+    const { x, y } = firstDevice;
+    const cursorLi = cursorTemplate({
+      name,
+      x: x * window.innerWidth,
+      y: y * window.innerHeight
+    });
+    ul.appendChild(cursorLi);
+  });
+
+  document.getElementById('cursor-list').innerHTML = ul.innerHTML;
+});
 
 export default socket
