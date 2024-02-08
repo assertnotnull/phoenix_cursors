@@ -73,7 +73,7 @@ channel
     console.log('Unable to join', resp);
   });
 
-function cursorTemplate({ x, y, name,color }) {
+function cursorTemplate({ x, y, name,color,online_at }) {
     const li = document.createElement('li');
     li.classList =
       'flex flex-col absolute pointer-events-none whitespace-nowrap overflow-hidden text-pink-300';
@@ -101,7 +101,7 @@ function cursorTemplate({ x, y, name,color }) {
     `;
 
     li.lastChild.style.backgroundColor = color;
-    li.lastChild.textContent = name;
+    li.lastChild.textContent = `${name} last seen ${online_at}`;
   
     return li;
   }
@@ -113,12 +113,13 @@ presence.onSync(() => {
   const ul = document.createElement('ul');
 
   presence.list((name, { metas: [firstDevice] }) => {
-    const { x, y ,color} = firstDevice;
+    const { x, y ,color, online_at} = firstDevice;
     const cursorLi = cursorTemplate({
       name,
       x: x * window.innerWidth,
       y: y * window.innerHeight,
-      color
+      color,
+      online_at
     });
     ul.appendChild(cursorLi);
   });
